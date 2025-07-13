@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
+import android.os.Build
 
 /**
  * @Description:    监听USB插拔、USB设备授权
@@ -56,7 +57,11 @@ class UsbDeviceReceiver : BroadcastReceiver() {
         val filter = IntentFilter(Config.ACTION_USB_PERMISSION)
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        context.registerReceiver(this, filter)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(this, filter, Context.RECEIVER_EXPORTED)
+        } else {
+            context.registerReceiver(this, filter)
+        }
     }
 
     /**

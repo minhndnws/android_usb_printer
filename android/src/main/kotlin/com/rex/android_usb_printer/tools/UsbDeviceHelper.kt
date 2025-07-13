@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.usb.*
 import io.flutter.Log
+import android.os.Build
 
 /**
  * @Description:    usb设备工具
@@ -27,11 +28,20 @@ class UsbDeviceHelper private constructor() {
 
     fun init(context: Context) {
         this.mContext = context
+        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
+        val intent = Intent(UsbDeviceReceiver.Config.ACTION_USB_PERMISSION).apply {
+            setPackage(context.packageName)
+        }
+
         mPermissionIntent = PendingIntent.getBroadcast(
-            context,
+            context.applicationContext,
             0,
-            Intent(UsbDeviceReceiver.Config.ACTION_USB_PERMISSION),
-            0
+            intent,
+            flags
         )
         usbManager = context.applicationContext.getSystemService(Context.USB_SERVICE) as UsbManager
     }
